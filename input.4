@@ -1,0 +1,10 @@
+cat data.1
+sort data.1
+cat data.1 | sort
+cat < data.1 > out
+cat out
+cat data.1 | sort | tr [a-z] [A-Z]
+cat data.1 | sort | tr [aeiou] [AEIOU]
+sort < data.1 | tr [a-z] [A-Z] > out2
+cat out2
+cat out
