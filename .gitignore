@@ -4,3 +4,5 @@ input*
 stderr*
 stdout*
 data*
+RUN
+header.mak
