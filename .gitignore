@@ -1,2 +1,6 @@
 mysh
 *.o
+input*
+stderr*
+stdout*
+data*

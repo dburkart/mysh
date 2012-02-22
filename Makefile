@@ -1,6 +1,7 @@
+# header.mak
 AS =		gas
 CC =		gcc
-CFLAGS =	-ggdb -std=c99
+CFLAGS =	-ggdb -std=c99 -Wall
 
 CFILES = 	main.c
 COBJECTS = 	$(CFILES:.c=.o)
