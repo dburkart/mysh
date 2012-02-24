@@ -4,37 +4,42 @@
 
 #define BUFF_SIZE   10
 
+char *get_line( FILE *fd );
+
 int main() {
-    char buf[BUFF_SIZE];
-    char *line, *insert;
-    line = (char *)malloc( BUFF_SIZE );
+    char *line;
 
     while ( 1 ) {
-    //    int multiplier = 2;
+        printf("\n? ");
 
-        while ( !feof( stdin ) ) {
-//            fgets( buf, BUFF_SIZE-1, stdin );
+        line = get_line( stdin );
 
-  //          line = (char *) realloc(line, BUFF_SIZE*multiplier - 1);
-    //        insert = line + BUFF_SIZE*multiplier-2;
-      //      memcpy(insert, buf, BUFF_SIZE - 1);
-
-        //    if ( line[strlen(line)-1] == '\n' ) break;
-
-            //buffer = (char *)realloc( buffer, BUFF_SIZE * multiplier );
-            //tmp = (char *)malloc( BUFF_SIZE * multiplier );
-            //memcpy( tmp, buffer, BUFF_SIZE * (multiplier - 1) );
-            //free( buffer );
-            //buffer = tmp;
-
-          //  multiplier++;
+        if(line != 0){
+            puts( line );
+            free( line );
         }
-
-        puts( line );
-        free( line );
-        line = insert = 0;
     }
-
-
     return 0;
+}
+
+char *get_line( FILE *fd ) {
+	char buf[BUFF_SIZE];
+	char *line;
+	line = 0;	
+
+	int reads = 0;
+	int n_read =0;
+	do{
+		fgets( buf, BUFF_SIZE, stdin );
+		n_read = strlen(buf);
+		reads += n_read;
+		line = (char *)realloc(line, reads);
+		if (line == 0) {
+			printf("Error: realloc failed(newsize:%d)n",reads);
+			break;
+		}
+		strcat(line, buf);
+	} while(n_read == BUFF_SIZE-1 && buf[0] != '\n');
+
+    return line;
 }
