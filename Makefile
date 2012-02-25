@@ -12,3 +12,6 @@ all: $(COBJECTS)
 
 .o: .c
 	$(CC) $(CFLAGS) -c $<
+	
+clean:
+	rm -f *.o
