@@ -17,14 +17,15 @@ cmd *parse( char *line ) {
 
 	curr_chunk = strtok( line, DELIMS );
 
-	do {
+	while ( curr_chunk != NULL ) {
 		tmp.list = 0, tmp.pmode = 0;
-		
+
 		// Handle |
+
 		if ( strcmp( curr_chunk, "|" ) == 0 ) {
 			tmp.pmode = C_PIPE;
 			toks = cmdlist_add( toks, tmp );
-			
+
 			curr_chunk = strtok( NULL, DELIMS );
 		}
 
@@ -32,7 +33,7 @@ cmd *parse( char *line ) {
 		else if ( strcmp( curr_chunk, "<" ) == 0 ) {
 			tmp.pmode = C_LESS;
 			toks = cmdlist_add( toks, tmp );
-			
+
 			curr_chunk = strtok( NULL, DELIMS );
 		}
 
@@ -40,7 +41,7 @@ cmd *parse( char *line ) {
 		else if ( strcmp( curr_chunk, ">" ) == 0 ) {
 			tmp.pmode = C_GREA;
 			toks = cmdlist_add( toks, tmp );
-			
+
 			curr_chunk = strtok( NULL, DELIMS );
 		}
 
@@ -50,7 +51,7 @@ cmd *parse( char *line ) {
 			toks = cmdlist_add( toks, tmp );
 		}
 
-	} while ( curr_chunk != NULL );
+	}
 
 	return toks;
 }
@@ -89,7 +90,7 @@ cmd_list cmdlist_add( cmd_list list, cmd c ) {
 	len = cmdlist_len(list);
 
 	new_size = (sizeof(cmd) * (len + 1)) + sizeof(cmd);
-	
+
 	list = (cmd_list)realloc( list, new_size );
 	list[len] = c;
 	list[len+1].list = 0, list[len+1].pmode = 0;
@@ -99,13 +100,13 @@ cmd_list cmdlist_add( cmd_list list, cmd c ) {
 
 void cmdlist_free( cmd_list cmds ) {
 	size_t len;
-	
+
 	len = cmdlist_len( cmds );
-	
+
 	for ( int i = 0; i < len; i++ ) {
 		free( cmds[i].list );
 	}
-	
+
 	free( cmds );
 }
 
