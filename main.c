@@ -18,6 +18,7 @@ int main() {
 		line = get_line( stdin );
 
 		commands = parse( line );
+		interpret( commands );
 		
 		if(line != NULL) {
 			cmdlist_free( commands );

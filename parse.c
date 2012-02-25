@@ -1,15 +1,12 @@
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
 
 #include "parse.h"
 
 char *curr_chunk;
 
 size_t tokenlist_len(char **);
-size_t cmdlist_len( cmd_list );
 
-cmd_list cmdlist_add( cmd_list, cmd );
 cmd tokenlist_add( cmd, char * );
 
 cmd parse_prg( char * );
@@ -76,7 +73,8 @@ size_t cmdlist_len( cmd_list list ) {
 
 	if ( list == NULL ) return 0;
 
-	while( list->list != 0 ) {
+	while( (list->list != 0 && list->pmode == 0 ) ||
+		   (list->list == 0 && list->pmode != 0 ) ) {
 		count++;
 		list++;
 	}
@@ -126,7 +124,7 @@ cmd tokenlist_add( cmd c, char *str ) {
 }
 
 cmd parse_prg( char *a ) {
-	cmd c;
+	cmd c = (cmd){0, 0};
 
 	while ( a != NULL && strcmp( a, "|" ) != 0 && strcmp( a, "<" ) != 0 &&
 			strcmp( a, ">" ) != 0 ) {

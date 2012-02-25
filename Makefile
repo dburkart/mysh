@@ -3,7 +3,7 @@ AS =		gas
 CC =		gcc
 CFLAGS =	-ggdb -std=c99 -Wall
 
-CFILES = 	main.c parse.c
+CFILES = 	main.c parse.c interpret.c
 COBJECTS = 	$(CFILES:.c=.o)
 BINARY = 	mysh
 

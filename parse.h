@@ -16,6 +16,11 @@ typedef struct cmd cmd;
 typedef cmd* cmd_list;
 
 cmd_list parse( char * );
+
+size_t cmdlist_len( cmd_list );
+
+cmd_list cmdlist_add( cmd_list, cmd );
+
 void cmdlist_free( cmd_list );
 
 #endif
