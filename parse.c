@@ -6,8 +6,8 @@
 
 char *curr_chunk;
 
-int tokenlist_len(char **);
-int cmdlist_len( cmd_list );
+size_t tokenlist_len(char **);
+size_t cmdlist_len( cmd_list );
 
 cmd_list cmdlist_add( cmd_list, cmd );
 cmd tokenlist_add( cmd, char * );
@@ -58,8 +58,8 @@ cmd *parse( char *line ) {
 	return toks;
 }
 
-int tokenlist_len( char **list ) {
-	int count = 0;
+size_t tokenlist_len( char **list ) {
+	size_t count = 0;
 
 	if ( list == NULL ) return 0;
 
@@ -71,8 +71,8 @@ int tokenlist_len( char **list ) {
 	return (count);
 }
 
-int cmdlist_len( cmd_list list ) {
-	int count = 0;
+size_t cmdlist_len( cmd_list list ) {
+	size_t count = 0;
 
 	if ( list == NULL ) return 0;
 
@@ -85,18 +85,30 @@ int cmdlist_len( cmd_list list ) {
 }
 
 cmd_list cmdlist_add( cmd_list list, cmd c ) {
-	int i = 0;
+	size_t len = 0;
 	size_t new_size;
 
-	i = cmdlist_len(list);
+	len = cmdlist_len(list);
 
-	new_size = (sizeof(cmd) * (i + 1)) + sizeof(cmd);
+	new_size = (sizeof(cmd) * (len + 1)) + sizeof(cmd);
 	
 	list = (cmd_list)realloc( list, new_size );
-	list[i] = c;
-	list[i+1].list = 0, list[i+1].pmode = 0;
+	list[len] = c;
+	list[len+1].list = 0, list[len+1].pmode = 0;
 
 	return list;
+}
+
+void cmdlist_free( cmd_list cmds ) {
+	size_t len;
+	
+	len = cmdlist_len( cmds );
+	
+	for ( int i = 0; i < len; i++ ) {
+		free( cmds[i].list );
+	}
+	
+	free( cmds );
 }
 
 cmd tokenlist_add( cmd c, char *str ) {

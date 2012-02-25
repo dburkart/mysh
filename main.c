@@ -19,8 +19,8 @@ int main() {
 
 		commands = parse( line );
 		
-		if(line != NULL){
-			free( line );
+		if(line != NULL) {
+			cmdlist_free( commands );
 		}
 	}
 	return 0;
@@ -33,8 +33,8 @@ char *get_line( FILE *fd ) {
 
 	int reads = 0;
 	int n_read =0;
-do{
-	fgets( buf, BUFF_SIZE, fd );
+	do {
+		fgets( buf, BUFF_SIZE, fd );
 		n_read = strlen(buf);
 		reads += n_read;
 		line = (char *)realloc(line, reads);

@@ -15,7 +15,8 @@ struct cmd {
 typedef struct cmd cmd;
 typedef cmd* cmd_list;
 
-cmd_list parse( char *line );
+cmd_list parse( char * );
+void cmdlist_free( cmd_list );
 
 #endif
 
