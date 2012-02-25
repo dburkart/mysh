@@ -5,14 +5,15 @@
 #define C_LESS      2
 #define C_GREA      3
 
-union cmd {
+struct cmd {
     char    **list;
     int     pmode;
 };
 
-typedef union cmd cmd;
+typedef struct cmd cmd;
+typedef cmd* cmd_list;
 
-cmd *parse( char *line );
+cmd_list parse( char *line );
 
 #endif
 
