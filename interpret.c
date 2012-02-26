@@ -7,6 +7,8 @@
 #include "interpret.h"
 #include "parse.h"
 
+#define BUFF_SIZE 100
+
 cmd_list reverse_polish();
 
 cmd_list cmdlist_push( cmd );
@@ -19,7 +21,10 @@ size_t stack_size = 0;
 void interpret( cmd_list cmds ) {
 	reverse_polish( cmds );
 	cmd a, b, c;
+	char buff[BUFF_SIZE];
 	pid_t result;
+	FILE *fp, *fd;
+	int next;
 
 	char *pipestr[1], *lessstr[1], *greastr[1];
 	pipestr[0] = "PIPE-OUTPUT";
@@ -29,6 +34,17 @@ void interpret( cmd_list cmds ) {
 	c = cmdlist_pop();
 	do {
 
+		if (c.fd[0] != -1) {
+//			fd = fdopen( c.fd[0], "r" );
+
+//			do {
+//				next = fgetc( fd );
+//				fputc(next, stdout );
+//			} while( next != EOF );
+
+//			fclose(fd);
+		} else {
+
 		switch (c.pmode) {
 			case C_PIPE:
 				a = cmdlist_pop();
@@ -36,7 +52,7 @@ void interpret( cmd_list cmds ) {
 
 				printf( "PIPING '%s*' INTO '%s*'\n", a.list[0], b.list[0] );
 
-				cmdlist_push( (cmd){pipestr, 0, 0} );
+				cmdlist_push( (cmd){pipestr, 0, {0, 1}} );
 				break;
 
 			case C_LESS:
@@ -45,20 +61,46 @@ void interpret( cmd_list cmds ) {
 
 				//printf( "READING '%s*' INTO '%s*'\n", b.list[0], a.list[0] );
 
-				pipe(a.fd);
-				pipe(b.fd);
+//				pipe(a.fd);
+				if ( cmdlist_len(stack) > 0 ) {
+				pipe(c.fd);
+				} else {
+					c.fd[0] = stdin;
+					c.fd[1] = stdout;
+				}
 
 				result = fork();
 
 				if (result == 0) {
+//					close( 0 );
+//					dup( a.fd[0] );
+					freopen(b.list[0], "r", stdin);
+//					close( c.fd[0] );
+//					close( 1 );
+//					dup( c.fd[1] );
+//					close( c.fd[1] );
 
+					execvp( a.list[0], a.list );
 				} else if (result == -1) {
 
 				} else {
+//					fp = fopen( b.list[0], "r" );
+					//fd = fdopen( a.fd[1], "w" );
 
+//					while ( fread(buff, 1, BUFF_SIZE, fp) == BUFF_SIZE ) {
+						//fread( fp, buff, BUFF_SIZE );
+						//putc(next, stdout);
+						//putc('\n', stdout);
+						//fputc( next, fd );
+//						write( a.fd[1], buff, BUFF_SIZE );
+//					}
+
+					//waitpid( result, NULL, NULL );
+//					fclose(fp);
 				}
 
-				cmdlist_push( (cmd){lessstr, 0, 0} );
+				//cmdlist_push( (cmd){lessstr, 0, 0} );
+				cmdlist_push( c );
 				break;
 
 			case C_GREA:
@@ -80,6 +122,7 @@ void interpret( cmd_list cmds ) {
 				}
 
 				break;
+		}
 		}
 
 		stack_swap();
@@ -136,11 +179,11 @@ cmd cmdlist_pop() {
 
 	len = cmdlist_len( stack );
 	if ( !len ) {
-		return (cmd){0, 0, 0};
+		return (cmd){0, 0, {-1, -1}};
 	}
 
 	c = stack[ len - 1 ];
-	stack[ len - 1] = (cmd){0, 0, 0};
+	stack[ len - 1] = (cmd){0, 0, {-1, -1}};
 
 	return c;
 }
