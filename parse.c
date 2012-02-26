@@ -125,7 +125,7 @@ cmd tokenlist_add( cmd c, char *str ) {
 }
 
 cmd parse_prg( char *a ) {
-	cmd c = (cmd){0, 0};
+	cmd c = (cmd){0, 0, 0};
 
 	while ( a != NULL && strcmp( a, "|" ) != 0 && strcmp( a, "<" ) != 0 &&
 			strcmp( a, ">" ) != 0 ) {

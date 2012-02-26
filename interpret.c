@@ -1,5 +1,8 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
 
 #include "interpret.h"
 #include "parse.h"
@@ -16,6 +19,7 @@ size_t stack_size = 0;
 void interpret( cmd_list cmds ) {
 	reverse_polish( cmds );
 	cmd a, b, c;
+	pid_t result;
 
 	char *pipestr[1], *lessstr[1], *greastr[1];
 	pipestr[0] = "PIPE-OUTPUT";
@@ -32,16 +36,29 @@ void interpret( cmd_list cmds ) {
 
 				printf( "PIPING '%s*' INTO '%s*'\n", a.list[0], b.list[0] );
 
-				cmdlist_push( (cmd){pipestr, 0} );
+				cmdlist_push( (cmd){pipestr, 0, 0} );
 				break;
 
 			case C_LESS:
 				a = cmdlist_pop();
 				b = cmdlist_pop();
 
-				printf( "READING '%s*' INTO '%s*'\n", b.list[0], a.list[0] );
+				//printf( "READING '%s*' INTO '%s*'\n", b.list[0], a.list[0] );
 
-				cmdlist_push( (cmd){lessstr, 0} );
+				pipe(a.fd);
+				pipe(b.fd);
+
+				result = fork();
+
+				if (result == 0) {
+
+				} else if (result == -1) {
+
+				} else {
+
+				}
+
+				cmdlist_push( (cmd){lessstr, 0, 0} );
 				break;
 
 			case C_GREA:
@@ -52,7 +69,16 @@ void interpret( cmd_list cmds ) {
 				break;
 
 			default:
-				printf( "%s*\n", c.list[0] );
+				result = fork();
+
+				if (result == 0) {
+					execvp( c.list[0], c.list );
+				} else if (result == -1) {
+					perror( "Fork blew up\n" );
+				} else {
+					waitpid( result, NULL, NULL );
+				}
+
 				break;
 		}
 
@@ -100,10 +126,8 @@ void stack_swap() {
 
 	cmd c = stack[len-1];
 
-	if ( stack[len-1].pmode == NULL && stack[len-2].pmode != NULL ) {
-		stack[len-1] = stack[len-2];
-		stack[len-2] = c;
-	}
+	stack[len-1] = stack[len-2];
+	stack[len-2] = c;
 }
 
 cmd cmdlist_pop() {
@@ -112,11 +136,11 @@ cmd cmdlist_pop() {
 
 	len = cmdlist_len( stack );
 	if ( !len ) {
-		return (cmd){0, 0};
+		return (cmd){0, 0, 0};
 	}
 
 	c = stack[ len - 1 ];
-	stack[ len - 1] = (cmd){0, 0};
+	stack[ len - 1] = (cmd){0, 0, 0};
 
 	return c;
 }
