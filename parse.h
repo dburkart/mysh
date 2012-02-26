@@ -10,7 +10,8 @@
 struct cmd {
 	char	**list;
 	int		pmode;
-    int     fd[2];
+    int     fd_in[2];
+    int		fd_out[2];
 };
 
 typedef struct cmd cmd;

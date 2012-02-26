@@ -21,10 +21,10 @@ cmd *parse( char *line ) {
 		tmp.list = 0, tmp.pmode = 0;
 
 		// Handle |
-
 		if ( strcmp( curr_chunk, "|" ) == 0 ) {
 			tmp.pmode = C_PIPE;
-            tmp.fd[0] = -1, tmp.fd[1] = -1;
+            tmp.fd_in[0] = 0, tmp.fd_in[1] = 1;
+            tmp.fd_out[0] = 0, tmp.fd_out[1] = 1;
 			toks = cmdlist_add( toks, tmp );
 
 			curr_chunk = strtok( NULL, DELIMS );
@@ -33,7 +33,8 @@ cmd *parse( char *line ) {
 		// Handle <
 		else if ( strcmp( curr_chunk, "<" ) == 0 ) {
 			tmp.pmode = C_LESS;
-            tmp.fd[0] = -1, tmp.fd[1] = -1;
+            tmp.fd_in[0] = 0, tmp.fd_in[1] = 1;
+            tmp.fd_out[0] = 0, tmp.fd_out[1] = 1;
 			toks = cmdlist_add( toks, tmp );
 
 			curr_chunk = strtok( NULL, DELIMS );
@@ -42,7 +43,8 @@ cmd *parse( char *line ) {
 		// Handle >
 		else if ( strcmp( curr_chunk, ">" ) == 0 ) {
 			tmp.pmode = C_GREA;
-            tmp.fd[0] = -1, tmp.fd[1] = -1;
+            tmp.fd_in[0] = 0, tmp.fd_in[1] = 1;
+            tmp.fd_out[0] = 0, tmp.fd_out[1] = 1;
 			toks = cmdlist_add( toks, tmp );
 
 			curr_chunk = strtok( NULL, DELIMS );
@@ -51,7 +53,8 @@ cmd *parse( char *line ) {
 		// Handle everything else
 		else {
 			tmp = parse_prg( curr_chunk );
-            tmp.fd[0] = -1, tmp.fd[1] = -1;
+            tmp.fd_in[0] = 0, tmp.fd_in[1] = 1;
+            tmp.fd_out[0] = 0, tmp.fd_out[1] = 1;
 			toks = cmdlist_add( toks, tmp );
 		}
 

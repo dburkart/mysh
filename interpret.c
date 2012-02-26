@@ -17,6 +17,7 @@ void stack_swap();
 
 cmd_list stack;
 size_t stack_size = 0;
+void printcmd( cmd, char * );
 
 void interpret( cmd_list cmds ) {
 	reverse_polish( cmds );
@@ -34,73 +35,83 @@ void interpret( cmd_list cmds ) {
 	c = cmdlist_pop();
 	do {
 
-		if (c.fd[0] != -1) {
-//			fd = fdopen( c.fd[0], "r" );
-
-//			do {
-//				next = fgetc( fd );
-//				fputc(next, stdout );
-//			} while( next != EOF );
-
-//			fclose(fd);
+		if (cmdlist_len(stack) == 0 && c.pmode) {
+			waitpid( result, NULL, NULL );
 		} else {
 
 		switch (c.pmode) {
 			case C_PIPE:
 				a = cmdlist_pop();
 				b = cmdlist_pop();
+				
+				printcmd( c, "pipe(c)" );
+				printcmd( a, "     a" );
+				printcmd( b, "     b" );
+				
+				result = fork();
 
-				printf( "PIPING '%s*' INTO '%s*'\n", a.list[0], b.list[0] );
+				if (result == 0) {
+					if ( a.pmode ) {
+						close( 0 );
+						dup( a.fd_out[0] );
+						
+						if ( c.fd_out[1] != 1 ) {
+							close( 1 );
+							dup( c.fd_out[1] );
+						}
+						
+						execvp( b.list[0], b.list );
+						cmdlist_push( c );
+					} else {
+						pipe( b.fd_in );
+						close( 1 );
+						dup( b.fd_in[1] );
+						close( b.fd_in[0] );
+						
+						execvp( a.list[0], a.list );
+						cmdlist_push( b );
+					}
+				
+/*					close( 0 );*/
+/*					freopen(b.list[0], "r", stdin);*/
 
-				cmdlist_push( (cmd){pipestr, 0, {0, 1}} );
+/*					if ( c.fd_out[1] != 1 ) {*/
+/*						close( 1 );*/
+/*						dup( c.fd_out[1] );*/
+/*					}*/
+				} else if (result == -1) {
+
+				}
+				
 				break;
 
 			case C_LESS:
 				a = cmdlist_pop();
 				b = cmdlist_pop();
 
-				//printf( "READING '%s*' INTO '%s*'\n", b.list[0], a.list[0] );
-
-//				pipe(a.fd);
-				if ( cmdlist_len(stack) > 0 ) {
-				pipe(c.fd);
-				} else {
-					c.fd[0] = stdin;
-					c.fd[1] = stdout;
-				}
+				printcmd( c, "less(c)" );
+				printcmd( a, "     a" );
+				printcmd( b, "     b" );
 
 				result = fork();
 
 				if (result == 0) {
-//					close( 0 );
-//					dup( a.fd[0] );
+					close( 0 );
 					freopen(b.list[0], "r", stdin);
-//					close( c.fd[0] );
-//					close( 1 );
-//					dup( c.fd[1] );
-//					close( c.fd[1] );
+
+					if ( c.fd_out[1] != 1 ) {
+						close( 1 );
+						dup( c.fd_out[1] );
+					}
 
 					execvp( a.list[0], a.list );
+					
 				} else if (result == -1) {
 
-				} else {
-//					fp = fopen( b.list[0], "r" );
-					//fd = fdopen( a.fd[1], "w" );
-
-//					while ( fread(buff, 1, BUFF_SIZE, fp) == BUFF_SIZE ) {
-						//fread( fp, buff, BUFF_SIZE );
-						//putc(next, stdout);
-						//putc('\n', stdout);
-						//fputc( next, fd );
-//						write( a.fd[1], buff, BUFF_SIZE );
-//					}
-
-					//waitpid( result, NULL, NULL );
-//					fclose(fp);
 				}
-
-				//cmdlist_push( (cmd){lessstr, 0, 0} );
+				
 				cmdlist_push( c );
+				
 				break;
 
 			case C_GREA:
@@ -111,9 +122,23 @@ void interpret( cmd_list cmds ) {
 				break;
 
 			default:
+				printcmd( c, "execute" );
+			
 				result = fork();
 
 				if (result == 0) {
+					if (c.fd_in[0] != 0) {
+						close( 0 );
+						dup( c.fd_in[0] );
+						close( c.fd_in[1] );
+					}
+					
+					if (c.fd_out[1] != 1) {
+						close( 1 );
+						dup( c.fd_out[1] );
+						close( c.fd_out[0] );
+					}
+				
 					execvp( c.list[0], c.list );
 				} else if (result == -1) {
 					perror( "Fork blew up\n" );
@@ -138,9 +163,19 @@ void interpret( cmd_list cmds ) {
 cmd_list reverse_polish( cmd_list cmds ) {
 	size_t len = cmdlist_len( cmds );
 	stack = NULL;
+	cmd prev = (cmd){0, 0, {0, 1}, {-1, -1}};
 
 	// Reverse the command list
 	for ( int i = len-1; i >= 0; i-- ) {
+		if ( cmds[i].pmode ) {
+			if ( prev.pmode ) {
+				pipe( cmds[i].fd_out );
+				prev.fd_in[0] = cmds[i].fd_out[0];
+				prev.fd_in[1] = cmds[i].fd_out[1];
+			}
+			prev = cmds[i];
+		}
+	
 		cmdlist_push( cmds[i] );
 	}
 
@@ -186,4 +221,9 @@ cmd cmdlist_pop() {
 	stack[ len - 1] = (cmd){0, 0, {-1, -1}};
 
 	return c;
+}
+
+void printcmd( cmd c, char *where) {
+	printf( "%s: pmode: %d, fd_in: {%d, %d}, fd_out: {%d, %d}\n", where, c.pmode,
+			c.fd_in[0], c.fd_in[1], c.fd_out[0], c.fd_out[1] );
 }
