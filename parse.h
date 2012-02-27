@@ -17,10 +17,10 @@
 #define DELIMS		" \t\n"
 
 struct cmd {
-	char	**list;
-	int		pmode;
-    int     fd_in[2];
-    int		fd_out[2];
+	char	**list;                 // Tokenized command
+	int		pmode;                  // Pipe mode
+    int     fd_in[2];               // Input file descriptor
+    int		fd_out[2];              // Output file descriptor
 };
 
 typedef struct cmd cmd;
@@ -31,8 +31,6 @@ cmd_list parse( char * );
 size_t cmdlist_len( cmd_list );
 
 cmd_list cmdlist_add( cmd_list, cmd );
-
-void cmdlist_free( cmd_list );
 
 #endif
 

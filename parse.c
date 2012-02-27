@@ -70,6 +70,9 @@ cmd *parse( char *line ) {
 	return toks;
 }
 
+/*
+ * Returns the length of the token list
+ */
 size_t tokenlist_len( char **list ) {
 	size_t count = 0;
 
@@ -83,6 +86,9 @@ size_t tokenlist_len( char **list ) {
 	return (count);
 }
 
+/*
+ * Returns the length of the command list
+ */
 size_t cmdlist_len( cmd_list list ) {
 	size_t count = 0;
 
@@ -97,6 +103,9 @@ size_t cmdlist_len( cmd_list list ) {
 	return (count);
 }
 
+/*
+ * Adds a command to the specified command list
+ */
 cmd_list cmdlist_add( cmd_list list, cmd c ) {
 	size_t len = 0;
 	size_t new_size;
@@ -112,18 +121,9 @@ cmd_list cmdlist_add( cmd_list list, cmd c ) {
 	return list;
 }
 
-void cmdlist_free( cmd_list cmds ) {
-	size_t len;
-
-	len = cmdlist_len( cmds );
-
-	for ( int i = 0; i < len; i++ ) {
-		free( cmds[i].list );
-	}
-
-	free( cmds );
-}
-
+/*
+ * Adds a token to the specified command
+ */
 cmd tokenlist_add( cmd c, char *str ) {
 	int i = 0;
 	size_t new_size;
@@ -138,6 +138,9 @@ cmd tokenlist_add( cmd c, char *str ) {
 	return c;
 }
 
+/*
+ * Parses a 'program' command
+ */
 cmd parse_prg( char *a ) {
 	cmd c = (cmd){0, 0, 0};
 
