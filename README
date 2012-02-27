@@ -1,0 +1,10 @@
+Dana Burkart (dsb3573), Gideon Williams (gaw5951)
+
+Breakdown of work:
+    Dana Burkart
+        - parser
+        - interpereter
+
+    Gideon Williams
+        - main program logic
+        - forking, exec'ing, etc in interpreter
