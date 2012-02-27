@@ -59,8 +59,12 @@ void interpret( cmd_list cmds ) {
 					}
 
 					result = fork();
+					//----in child past this point------
 
 					if (result == 0) {
+						//our input should either be a pipe or stay as stdin(0)
+						//our output should either be a pipe or remain stdout(1)
+						//I think we are only doing a OR b here not both.
 						if ( a.pmode ) {
 							close( 0 );
 							dup( a.fd_out[0] );
@@ -71,12 +75,14 @@ void interpret( cmd_list cmds ) {
 							}
 
 							execvp( b.list[0], b.list );
+							//no longer in our program, no code past here
 						} else {
 							close( 1 );
 							dup( b.fd_in[1] );
 							close( b.fd_in[0] );
 
 							execvp( a.list[0], a.list );
+							//no longer in our program, no code past here
 						}
 					} else if (result == -1) {
 
@@ -95,7 +101,9 @@ void interpret( cmd_list cmds ) {
 					result = fork();
 
 					if (result == 0) {
-						close( 0 );
+						//our input should be a file(freopen)
+						//our output should be a pipe or stay as stdout(1)
+						//close( 0 );
 						freopen(b.list[0], "r", stdin);
 
 						if ( c.fd_out[1] != 1 ) {
@@ -124,6 +132,8 @@ void interpret( cmd_list cmds ) {
 					result = fork();
 
 					if (result == 0) {
+						//our input should either be from c or stdin(0)
+						//our output should be a file(line below)
 						close( 0 );
 						freopen(b.list[0], "a", stdout);
 
