@@ -4,6 +4,7 @@
 #define C_PIPE		1
 #define C_LESS		2
 #define C_GREA		3
+#define C_FILE 		4
 
 #define DELIMS		" \t\n"
 

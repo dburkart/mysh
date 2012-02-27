@@ -55,6 +55,7 @@ cmd *parse( char *line ) {
 			tmp = parse_prg( curr_chunk );
             tmp.fd_in[0] = 0, tmp.fd_in[1] = 1;
             tmp.fd_out[0] = 0, tmp.fd_out[1] = 1;
+			tmp.pmode = 0;
 			toks = cmdlist_add( toks, tmp );
 		}
 
