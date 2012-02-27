@@ -5,18 +5,20 @@
 
 #include "interpret.h"
 
-cmd_list commands;
+cmd_list commands = 0;
 
 void interpret( cmd_list cmds ){
 	int roop = 0;
 	int c = count_non_pmode( cmds );
+	int wait_res = 0;
 	int result = 0;
 	commands = (cmd_list) malloc( c * sizeof( cmd ) );
 	
 	setup_pipes( cmds );
 
 	for( roop = 0; roop < c; roop++) {
-		if ( cmds[roop].pmode == C_FILE ) 
+	//printcmd(commands[roop], "next");	
+		if ( commands[roop].pmode == C_FILE ) 
 			continue;
 		
 		result = fork();
@@ -24,22 +26,24 @@ void interpret( cmd_list cmds ){
 			case 0:
 					//child
 
-					if ( cmds[roop].fd_in[0] == -1) {
-							freopen( cmds[roop-1].list[0], "r", stdin );
-					}else if ( cmds[roop].fd_in[0] != 0  ) {
+					if ( commands[roop].fd_in[0] == -1) {
+							freopen( commands[roop-1].list[0], "r", stdin );
+					}else if ( commands[roop].fd_in[0] != 0  ) {
 							//not reg stdin
 							close( 0 );
-							dup( cmds[roop].fd_in[0] );
+							dup( commands[roop].fd_in[0] );
 					}
 
-					if ( cmds[roop].fd_out[1] == -1 ) { 
-							freopen( cmds[roop+1].list[0], "a", stdout );
-					}else if ( cmds[roop].fd_out[1] != 1 ) {
+					if ( commands[roop].fd_out[1] == -1 ) { 
+							freopen( commands[roop+1].list[0], "a", stdout );
+					}else if ( commands[roop].fd_out[1] != 1 ) {
 							//not reg stdout
 							close( 1 );
-							dup( cmds[roop].fd_out[1] );
+							dup( commands[roop].fd_out[1] );
 					}
-					execvp( cmds[roop].list[0], cmds[roop].list);
+					execvp( commands[roop].list[0], commands[roop].list);
+					printf("Unkown Command: %s\n", commands[roop].list[0]); 
+					exit(0);
 				break;
 			case -1:
 				//error
@@ -49,14 +53,24 @@ void interpret( cmd_list cmds ){
 				break;
 		}
 	}
-	//fsync(stdout);
-	//fflush(stdout);
+	fsync(stdout);
+	fflush(stdout);
 
-	//fsync(stdin);
-	//fflush(stdin);
-
+	fsync(stdin);
+	fflush(stdin);
+	/*
+	do {
+			wait_res = wait(NULL);
+	} while( wait_res != result);
+	*/
 	// grep hangs so we just let the 
 	//waitpid( result, NULL, 0 );
+	for ( roop = 0; roop < c; roop++ ) {
+		if ( roop != c - 1 && commands[roop].pmode != C_FILE ) {
+			close( commands[ roop ].fd_out[0] );
+			close( commands[ roop ].fd_out[1] );
+		}
+	}
 	free( commands );
 }
 
@@ -70,6 +84,7 @@ void setup_pipes( cmd_list c ) {
 			case C_PIPE:
 				pipe( c[i-1].fd_out );
 				c[i+1].fd_in[0] = c[i-1].fd_out[0];
+				c[i+1].fd_in[1] = c[i-1].fd_out[1];
 				//ins c i-1 into commads
 				commands[j++] = c[i-1];
 				break;
@@ -103,7 +118,7 @@ int count_non_pmode( cmd_list c ) {
 	for( i = 0; c[i].list != NULL || c[i].pmode != 0;i++) {
 		if ( !c[i].pmode ) ret++;
 	}
-	printf("Len: %d\n", ret);
+	//printf("Len: %d\n", ret);
 	return ret;
 }
 

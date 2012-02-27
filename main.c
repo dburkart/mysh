@@ -24,8 +24,8 @@ int main() {
 		interpret( commands );
 
 		if(line != NULL) {
-			cmdlist_free( commands );
 			free( line );
+			free( commands );
 			line = NULL;
 		}
 	}
