@@ -1,3 +1,11 @@
+// 
+// main.c
+//
+// Authors: Dana Burkart (dsb3573), Gideon Williams (gaw5951)
+//
+// Description: Main program
+//
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>

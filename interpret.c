@@ -1,3 +1,9 @@
+//
+// interpret.c
+//
+// Authors: Dana Burkart (dsb3573), Gideon Williams (gaw5951)
+//
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>

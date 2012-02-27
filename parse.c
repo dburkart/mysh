@@ -1,3 +1,9 @@
+// 
+// parse.c
+//
+// Authors: Dana Burkart (dsb3573), Gideon Williams (gaw5951)
+//
+
 #include <stdlib.h>
 #include <string.h>
 

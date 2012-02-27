@@ -1,3 +1,11 @@
+// 
+// parse.h
+//
+// Authors: Dana Burkart (dsb3573), Gideon Williams (gaw5951)
+// 
+// Description: Parse parses a line of input into a command list
+//
+
 #ifndef __PARSE_H__
 #define __PARSE_H__
 
